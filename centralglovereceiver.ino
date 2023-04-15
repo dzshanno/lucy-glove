@@ -24,10 +24,10 @@ int Finger5pin = 0;
 // set the imput pins the flex sensors are connected to ( in case of direct connection)
 
 int Flex1pin = 0;
-int Flex1pin = 0;
-int Flex1pin = 0;
-int Flex1pin = 0;
-int Flex1pin = 0;
+int Flex2pin = 0;
+int Flex3pin = 0;
+int Flex4pin = 0;
+int Flex5pin = 0;
 
 //Set input mode to WIRED(0) or BLUETOOTH (1)
 
@@ -46,7 +46,7 @@ Servo Finger1Servo;
 
 void setup() {
 
-  // initiuate serial connection for feedback information
+  // initiate serial connection for feedback information
   Serial.begin(9600);
   while (!Serial);
 
@@ -104,7 +104,7 @@ void loop() {
   
     while (peripheral.connected()) {
 
-      reasd the current value of the characteristics from bluetooth
+      // reads the current value of the characteristics from bluetooth
       Flex1_characteristic.read();
   
       int position;
@@ -116,12 +116,19 @@ void loop() {
       //wait a bit - not sure why? 
       delay(2);
     }
+      // when the central disconnects, print it out:
+      Serial.print(F("Disconnected from peripheral: "));
+      Serial.println(peripheral.localName());
+    // then loop back round and listen for a connection from a BLE central device
+
 
   }
  } else {
 // get data direct from input pins
  }
 }
+
+// Other functions called by the setup and loop
 
 // for printing out the details from the blluetooth byte value
 int printData(const unsigned char data[], int length) {
@@ -147,7 +154,7 @@ int hextoint(const unsigned char data2[], int length) {
 
 // move a given servo to a specific position
 void MoveServo (Servo moveservo, int position ){
-  position = map (position, 200 , 400, 10, 170);
+  position = map (position, 215  , 65, 10, 170);
   moveservo.write(position); 
   Serial.print("Move to...");
   Serial.println(position);                 // sets the servo position according to the scaled value
