@@ -1,0 +1,69 @@
+#include <ArduinoBLE.h>
+
+
+int Flex1_pin = A0;
+BLEService FlexService("19B10000-E8F2-537E-4F6C-D104768A1214");
+
+BLEByteCharacteristic Flex1("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite);
+BLEByteCharacteristic Flex2("19B10002-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite);
+
+void setup() {
+  Serial.begin(9600);
+  while (!Serial);
+
+  // begin initialization
+  if (!BLE.begin()) {
+    Serial.println("starting Bluetooth® Low Energy module failed!");
+
+    while (1);
+  }
+
+  // set advertised local name and service UUID:
+  BLE.setLocalName("Glove");
+  BLE.setAdvertisedService(FlexService);
+
+  // add the characteristic to the service
+  FlexService.addCharacteristic(Flex1);
+  FlexService.addCharacteristic(Flex2);
+
+  // add service
+  BLE.addService(FlexService);
+
+  // set the initial value for the characeristic:
+  Flex1.writeValue(10);
+  Flex2.writeValue(20);
+  // start advertising
+  BLE.advertise();
+
+  Serial.println("BLE Glove Peripheral");
+}
+
+void loop() {
+  // listen for Bluetooth® Low Energy peripherals to connect:
+  BLEDevice central = BLE.central();
+
+  // if a central is connected to peripheral:
+  if (central) {
+    Serial.print("Connected to central: ");
+    // print the central's MAC address:
+    Serial.println(central.address());
+
+    // while the central is still connected to peripheral:
+  while (central.connected()) {
+    int Flex1value = analogRead(Flex1_pin);
+    Flex1.writeValue(Flex1value);
+    Serial.println(Flex1value);
+        if (Flex1.written()) {
+            Serial.println(Flex1.value());      
+        }
+         if (Flex2.written()) {
+            Serial.println(Flex2.value());      
+        }
+      delay(10);
+      }
+
+    // when the central disconnects, print it out:
+    Serial.print(F("Disconnected from central: "));
+    Serial.println(central.address());
+  }
+}
